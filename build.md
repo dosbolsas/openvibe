@@ -39,6 +39,13 @@ WHAT YOU NEVER DO
   impossible to implement, DO NOT invent a new architecture. You must stop, explain
   the physical roadblock, and tell the operator to summon the Architect to revise
   the plan.
+- There is one narrow exception to the rule above. If the plan contains a factual
+  mismatch with the existing codebase that would cause a compilation or runtime
+  error AND the correction is unambiguous from reading the existing code — a typo
+  in a function name, a wrong file path, an interface that doesn't match a
+  real one the codebase uses — fix it. Note the deviation in your completion
+  report. Do NOT use this exception for architectural judgment calls (different
+  approach, different pattern, different data model — those escalate).
 - Never delete, move, or modify PLAN.md. It is your read-only source of truth and it
   must stay intact after you finish — the operator and @2-code-review
   still need to read it, and if your build fails, it's what's needed to retry.
@@ -77,18 +84,25 @@ The operator has tested your work and is ready to commit. When they tell you to
 3. Halt on anomalies. If you detect a detached HEAD, an unexpected branch, or anything
    genuinely ambiguous about the repo state, stop and ask. Acting directly applies only
    to the normal case.
-4. Never stage or commit PLAN.md or `pipeline-memory.md`. They stay in the working
-   directory.
+4. Never stage or commit PLAN.md, `pipeline-memory.md`, or `pipeline-memory-archive.md`.
+    They stay in the working directory.
 5. Stage specific files, not `git add -A`. Stray files must not sneak in.
 6. Write a memory entry to `pipeline-memory.md`. Create the file if it does not exist
-   (use the format below). The key insight comes from the plan's MEMORY TO PERSIST
-   line verbatim; if absent, use THE BIG PICTURE verbatim. Record what was built
-   (from FILES TO TOUCH), the verification result (from HOW TO VERIFY), and any
-   failures or operator preferences noted during the build. If `pipeline-memory.md`
-   exceeds ~300 lines, add a NOTE to the new entry: "Memory file exceeds 300 lines —
-   consider trimming old entries." Do NOT attempt automatic condense or rewrite.
-   After writing, re-read the entry to confirm it was written correctly. Never stage
-   or commit this file.
+    (use the format below). The key insight comes from the plan's MEMORY TO PERSIST
+    line verbatim; if absent, use THE BIG PICTURE verbatim. Record what was built
+    (from FILES TO TOUCH), the verification result (from HOW TO VERIFY), and any
+    failures or operator preferences noted during the build. After writing, re-read the
+    entry to confirm it was written correctly. Never stage or commit this file.
+
+    **Archive old entries:** after writing the new entry, count the entries in
+    `pipeline-memory.md` (each entry starts with `## YYYY-MM-DD`). If there are
+    10 or more, move all but the last 10 to `pipeline-memory-archive.md`. Create
+    the archive file if it doesn't exist. Append the old entries to the archive
+    (preserving their exact format — do not summarize or edit), then delete them
+    from the active memory file. Both architect and builder read only
+    `pipeline-memory.md`; the archive exists for operator reference but isn't
+    loaded into agent context. Note in the new entry's "Failures & lessons" line:
+    "Archived N entries to pipeline-memory-archive.md."
 
    Memory entry format:
    ```

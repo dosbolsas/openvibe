@@ -87,7 +87,7 @@ You describe a task (plain language)
 - **Architect reads it before planning** — avoids repeating past mistakes, honors preferences already expressed. Disk state supersedes stale memory.
 - **Builder reads it before building** — checks for past failures on similar files.
 - **Builder writes it before shipping** — appends a dated entry after staging, before committing. If the write fails, escalation halts before anything is pushed.
-- **No automatic cleanup.** At ~300 lines the builder suggests trimming. You manage it manually — read-modify-write on a plain markdown file with no git history is fragile enough without a model trying to summarize it.
+- **Automatic archiving.** When `pipeline-memory.md` reaches 10 entries, the builder automatically moves all but the last 10 to `pipeline-memory-archive.md` — full entries, no summarization. Both architect and builder read only the active memory file (~10 entries, ~150 lines), so context stays lean. The archive exists for operator reference. No manual cleanup needed.
 - **Local only.** Never committed; doesn't travel across machines.
 
 ### When to use the full chain vs. not
