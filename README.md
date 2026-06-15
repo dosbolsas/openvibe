@@ -12,8 +12,8 @@ Designed for a **product-minded operator**: you describe features in plain langu
 
 | Role | Agent | Job | Model | Why |
 |------|-------|-----|-------|-----|
-| **Architect** | `plan` | Reads the codebase, decides the architecture, writes `PLAN.md`. Cannot touch source code. | DeepSeek V4 Pro (Think Max) | Best open reasoner; verbosity doesn't matter for a few planning calls. |
-| **Builder** | `build` | Implements the plan to the letter, runs tests, leaves changes uncommitted until you say ship. | GLM-5.1 | Different model family from the planner — eliminates shared blind spots that survive from plan to implementation. |
+| **Architect** | `plan` | Reads the codebase, decides the architecture, writes `PLAN.md`. Cannot touch source code. | GLM-5.1 | Different model family from the builder — eliminates shared blind spots that survive from plan to implementation. |
+| **Builder** | `build` | Implements the plan to the letter, runs tests, leaves changes uncommitted until you say ship. | DeepSeek V4 Pro (Think High) | DeepSeek's reasoning at high effort — strong execution in the iterative build loop. |
 | **Plan Reviewer** | `@1-plan-review` | Independently critiques the *plan* for judgment flaws **before any code is written**. Reads the real codebase itself — does not trust the architect's description of it. | Kimi K2.7 | Different lab → decorrelated blind spots. Highest-intelligence model on Go. |
 | **Code Reviewer** | `@2-code-review` | After the build: conformance to the plan (omissions, deviations, excess) **and** code quality (bugs, security via Semgrep, anti-patterns) in a single pass. Bipartite verdict. | Qwen 3.7 Max | Different lab from both planner and builder — 4 distinct model families with zero overlaps. Backed by Semgrep (5000+ deterministic rules). |
 
@@ -91,7 +91,7 @@ Session context carries operator preferences organically across agent switches. 
 
 **The architect is read-only on source files.** A load-bearing constraint, not a limitation. Forces handoff rather than drift into implementation; keeps the expensive deep-reasoning seat from editing code it was only meant to think about. It can write exactly one file (`PLAN.md`) and run read-only git commands.
 
-**Builder is on a different model family from the planner.** Plan and build used to share DeepSeek V4 Pro at different reasoning efforts — this was intentional but meant the builder could faithfully implement a plan flawed in ways only another model family would catch. The builder now runs on GLM-5.1 (Z.AI), eliminating the shared blind spot. Decorrelated plan/builder is a stronger safety property than token savings on a build loop.
+**Builder is on a different model family from the planner.** The planner runs on GLM-5.1 (Z.AI), the builder on DeepSeek V4 Pro — separate labs, separate training data. No model family plans and implements its own work. Decorrelation is a stronger safety property than any per-model capability advantage.
 
 **Plans hand off via a file on disk, not via conversation context.** OpenCode's multi-agent context inheritance is fuzzy and version-dependent. `PLAN.md` makes every handoff deterministic and inspectable. The checker prompts are explicitly instructed to trust disk state over inherited context.
 
@@ -148,12 +148,12 @@ Both sections live outside the `<build_specification>` tags so they never confli
 
 | Agent | Model | Temp | Why |
 |-------|-------|------|-----|
-| plan | DeepSeek V4 Pro | 1.0 | DeepSeek's thinking-mode guidance |
-| build | GLM-5.1 | 1.0 | Z.AI's documented default for GLM-5.1 series per API reference |
+| plan | GLM-5.1 | 1.0 | Z.AI's documented default for GLM-5.1 series per API reference |
+| build | DeepSeek V4 Pro | 1.0 | DeepSeek's thinking-mode guidance |
 | @1-plan-review | Kimi K2.7 | 1.0 | Moonshot's recommendation for K2.7 thinking mode |
 | @2-code-review | Qwen 3.7 Max | 1.0 (top_p: 0.95) | Qwen's own coding agent benchmarks (SWE-Bench, Terminal-Bench 2.0) use `temp=1.0, top_p=0.95` |
 
-**Provider setup:** `plan` runs on **direct DeepSeek** (`deepseek/`). `build` and the two checker subagents run on **OpenCode Go** (`opencode-go/`) — flat subscription, dollar-denominated limits, zero-retention policy. GLM-5.1 and Qwen 3.7 Max are available on Go. If you'd rather manage one auth and one bill, DeepSeek V4 Pro is also available on Go as `opencode-go/deepseek-v4-pro`.
+**Provider setup:** `build` runs on **direct DeepSeek** (`deepseek/`). `plan` and the two checker subagents run on **OpenCode Go** (`opencode-go/`) — flat subscription, dollar-denominated limits, zero-retention policy. GLM-5.1 and Qwen 3.7 Max are available on Go. If you'd rather manage one auth and one bill, DeepSeek V4 Pro is also available on Go as `opencode-go/deepseek-v4-pro`.
 
 > ⚠️ **Verify every model string** in the `/models` picker before trusting it. A wrong `provider/model` prefix means the agent silently won't load — and the mixed-provider setup is exactly where "looks right in the file, fails on load" hides. Two providers means two auths must both work.
 

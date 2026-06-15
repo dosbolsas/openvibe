@@ -19,8 +19,7 @@
   "agent": {
     "plan": {
       "description": "Read-only Principal Architect. Investigates the codebase and writes the implementation plan to PLAN.md. Cannot edit source.",
-      "model": "deepseek/deepseek-v4-pro",
-      "reasoningEffort": "xhigh",
+      "model": "opencode-go/glm-5.1",
       "prompt": "{file:./architect.md}",
       "temperature": 1.0,
       "permission": {
@@ -36,7 +35,8 @@
     },
     "build": {
       "description": "Executing Builder. Implements PLAN.md to the letter, runs tests, leaves changes uncommitted for review.",
-      "model": "opencode-go/glm-5.1",
+      "model": "deepseek/deepseek-v4-pro",
+      "reasoningEffort": "high",
       "prompt": "{file:./build.md}",
       "temperature": 1.0,
       "permission": {
