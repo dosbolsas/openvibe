@@ -36,9 +36,8 @@ Designed for a **product-minded operator**: you describe features in plain langu
 | `build.md` | System prompt for `build`. |
 | `1-plan-review.md` | System prompt for `@1-plan-review`. |
 | `2-code-review.md` | System prompt for `@2-code-review`. |
-| `.gitignore` | Keeps `PLAN.md` and `pipeline-memory.md` out of commits. |
+| `.gitignore` | Keeps `PLAN.md` out of commits. |
 | `PLAN.md` | **Generated at runtime** by the architect. The handoff artifact. Not authored by you. |
-| `pipeline-memory.md` | **Generated at runtime** by the builder — a running log of past builds, lessons, and operator preferences. Created on first use; never committed. |
 
 All files live at the **repo root**, side by side. The config references prompts as `{file:./architect.md}` etc., resolved relative to `opencode.jsonc` — they must stay together. Project config at the repo root overrides global/remote config and is safe to commit, so the pipeline travels with the repo.
 
@@ -50,9 +49,9 @@ All files live at the **repo root**, side by side. The config references prompts
 You describe a task (plain language)
         │
         ▼
- ┌─────────────┐   reads repo + pipeline-memory.md,
- │  plan (Max) │   verifies API versions, writes PLAN.md,
- └─────────────┘   shows you a plain-English summary
+ ┌─────────────┐   reads repo, writes PLAN.md,
+ │  plan (Max) │   shows you a plain-English summary
+ └─────────────┘
         │
         ▼
    @1-plan-review .... (optional, for non-trivial tasks)
@@ -63,8 +62,8 @@ You describe a task (plain language)
    Tab to build .... shared session: builder has the plan as live context
         │
         ▼
- ┌──────────────┐   reads PLAN.md + pipeline-memory.md,
- │ build (GLM)  │   implements exactly that, runs tests,
+ ┌──────────────┐   reads PLAN.md, implements exactly
+ │ build (GLM)  │   that, runs tests,
  └──────────────┘   leaves changes UNCOMMITTED
         │
         ▼
@@ -74,25 +73,17 @@ You describe a task (plain language)
    You run it / click it / use it  ← the only check that counts
         │
         ▼
-   Tell build "commit and push" → it shows you exactly what it's
-        committing → writes a memory entry → commits → pushes
+    Tell build "commit and push" → it shows you exactly what it's
+        committing → commits → pushes
 ```
 
 `plan` and `build` are **primary agents** — switch with Tab, shared session, no lossy re-paste. The two checker agents are **subagents** — invoke with `@1-plan-review` / `@2-code-review` from whichever primary agent you're in. They run in isolated child sessions, which is *by design*: a reviewer that inherited the architect's reasoning would just agree with it. The checkers read `PLAN.md` from disk instead.
 
-### Pipeline memory
-
-`pipeline-memory.md` is the pipeline's persistent learning log. It accumulates across sessions so the architect and builder don't start cold.
-
-- **Architect reads it before planning** — avoids repeating past mistakes, honors preferences already expressed. Disk state supersedes stale memory.
-- **Builder reads it before building** — checks for past failures on similar files.
-- **Builder writes it before shipping** — appends a dated entry after staging, before committing. If the write fails, escalation halts before anything is pushed.
-- **Automatic archiving.** When `pipeline-memory.md` reaches 10 entries, the builder automatically moves all but the last 10 to `pipeline-memory-archive.md` — full entries, no summarization. Both architect and builder read only the active memory file (~10 entries, ~150 lines), so context stays lean. The archive exists for operator reference. No manual cleanup needed.
-- **Local only.** Never committed; doesn't travel across machines.
-
 ### When to use the full chain vs. not
 
 Full chain for large or hard-to-reverse changes. For a one-line tweak, the honest minimum is: **plan → build → run it → commit**. The checkers are insurance you add when the stakes justify extra passes. Don't summon a four-model review pipeline to change a button color.
+
+Session context carries operator preferences organically across agent switches. The git log carries project history. No separate memory file needed.
 
 ---
 
