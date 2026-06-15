@@ -129,6 +129,17 @@ PLAN.md is the actual product of the pipeline — everything else exists to prod
 
 **Right-sizing matters.** This is a menu, not a mandatory template. A one-line CSS tweak skips SEQUENCING, INTERFACES, and RISKS. A database migration leans on all of them. CONTEXT I VERIFIED, FILES TO TOUCH, and ACCEPTANCE CRITERIA are always present; the rest earn their place. No "RISKS: n/a" padding.
 
+### Dynamic audit sections (outside `<build_specification>`)
+
+PLAN.md is more than a static spec — it carries the pipeline's audit trail across agent invocations. These sections are appended or replaced during review and build cycles, not authored by the architect up front:
+
+| Section | Who writes it | When |
+|---------|--------------|------|
+| `## REVIEW HISTORY` | Architect | After revising PLAN.md due to an `@1-plan-review` REVISE verdict. Records each flaw, whether it was ACCEPTED or REJECTED, and the rationale. The latest review history replaces any previous one. |
+| `## BUILD FAILURE` | Builder | On hitting the BUILD ESCALATION circuit breaker. Records which step failed, what was built, what was tried, and the error log (with secrets redacted). The architect reads and deletes this section when resolving the failure. |
+
+Both sections live outside the `<build_specification>` tags so they never conflict with the formal plan structure. You can spot whether a plan has been through review or escalation by checking for these headers. The architect and reviewers read them from disk — the operator never needs to copy-paste between agents.
+
 ---
 
 ## Temperature and models

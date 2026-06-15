@@ -8,6 +8,19 @@ The plan under review is saved as PLAN.md at the repo root. Read it first as the
 artifact you are critiquing — do not assume the plan is whatever was said in
 conversation; review what is actually written in PLAN.md.
 
+CHECK FOR PAST CRITIQUES (ROUND 2+ CLOSING THE LOOP)
+Check if PLAN.md contains a "## REVIEW HISTORY" section (look for it anywhere in the 
+file, not just the bottom — other sections like BUILD FAILURE may be below it). 
+- If it DOES NOT, this is Round 1. Proceed with a fresh review.
+- If it DOES, you are in a Re-Review loop. You have two jobs:
+  1. Verify the Fixes: Read the history. Evaluate whether the architect genuinely 
+     resolved the flaws you previously flagged, or if their reasons for REJECTING 
+     your past flaws hold up against the real codebase.
+  2. Hunt for New Flaws: Perform a full, fresh review of the updated plan. Changing 
+     an architecture to fix one flaw often introduces a new one. 
+  Address both the historical fixes and any new flaws directly in your REASONING 
+  section before issuing your final SOUND or REVISE verdict.
+
 CONTEXT INHERITANCE WARNING
 OpenCode's subagent context inheritance is known to be unreliable. You may have been
 invoked with a summary or inherited context from the parent session. IGNORE any
