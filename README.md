@@ -14,9 +14,9 @@ Designed for a **product-minded operator**: you describe features in plain langu
 |------|-------|-----|-------|-----|
 | **Architect** | `plan` | Reads the codebase, decides the architecture, writes `PLAN.md`. Cannot touch source code. | DeepSeek V4 Pro (Think Max) | Best open reasoner; verbosity doesn't matter for a few planning calls. |
 | **Builder** | `build` | Implements the plan to the letter, runs tests, leaves changes uncommitted until you say ship. | DeepSeek V4 Pro (Think High) | Same model, lower reasoning effort — strong execution without burning Max tokens across a build loop. |
-| **Plan Reviewer** | `@1-review-plan` | Independently critiques the *plan* for judgment flaws **before any code is written**. Reads the real codebase itself — does not trust the architect's description of it. | Kimi K2.6 | Different lab → decorrelated blind spots. Highest-intelligence model on Go. |
+| **Plan Reviewer** | `@1-review-plan` | Independently critiques the *plan* for judgment flaws **before any code is written**. Reads the real codebase itself — does not trust the architect's description of it. | Kimi K2.7 | Different lab → decorrelated blind spots. Highest-intelligence model on Go. |
 | **Drift Checker** | `@2-check-drift` | After the build: did the implementation match the plan, no more and no less? | GLM-5.1 | Third lab. Disciplined, structured output — exactly what a conformance report needs. |
-| **Code Reviewer** | `@3-review-code` | After drift-check: bugs, security issues, anti-patterns in the actual code. Backed by Semgrep (5000+ deterministic rules). Does **not** re-litigate architecture. | Kimi K2.6 | Different lab from the builder; the shared model with `@1-review-plan` is acceptable because these two agents examine entirely different artifacts — a plan vs. a code diff — under fundamentally different prompts. |
+| **Code Reviewer** | `@3-review-code` | After drift-check: bugs, security issues, anti-patterns in the actual code. Backed by Semgrep (5000+ deterministic rules). Does **not** re-litigate architecture. | Kimi K2.7 | Different lab from the builder; the shared model with `@1-review-plan` is acceptable because these two agents examine entirely different artifacts — a plan vs. a code diff — under fundamentally different prompts. |
 
 **The single most important thing:** the three checkers are on different model families from the builder on purpose. A checker that shared the builder's training distribution would share its blind spots. Decorrelation is the whole game.
 
@@ -154,9 +154,9 @@ PLAN.md is the actual product of the pipeline — everything else exists to prod
 |-------|-------|------|-----|
 | plan | DeepSeek V4 Pro | 1.0 | DeepSeek's thinking-mode guidance |
 | build | DeepSeek V4 Pro | 1.0 | same |
-| @1-review-plan | Kimi K2.6 | 1.0 | Moonshot's recommendation for K2.6 thinking mode |
+| @1-review-plan | Kimi K2.7 | 1.0 | Moonshot's recommendation for K2.7 thinking mode |
 | @2-check-drift | GLM-5.1 | **0.6** | Z.AI's own GLM-5.1 docs — different vendor, different number |
-| @3-review-code | Kimi K2.6 | 1.0 | same as @1-review-plan |
+| @3-review-code | Kimi K2.7 | 1.0 | same as @1-review-plan |
 
 GLM-5.1 at 0.6 looks out of place next to the others. Don't "fix" it to match. It's simply what Z.AI recommends for that model in thinking mode — the drift-check's discipline comes from its prompt and output format, not from a cooler temperature. If you ever swap a model, look up *that* model's recommended thinking-mode temperature and use it; never carry the number over from the model it replaced.
 

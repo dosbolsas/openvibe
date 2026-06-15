@@ -59,7 +59,7 @@
     "1-review-plan": {
       "description": "Step 1: @1-review-plan — reviews the PLAN for judgment flaws BEFORE any code is written.",
       "mode": "subagent",
-      "model": "opencode-go/kimi-k2.6",
+      "model": "opencode-go/kimi-k2.7-code",
       "temperature": 1.0,
       "prompt": "{file:./1-review-plan.md}",
       "permission": {
@@ -92,7 +92,7 @@
     "3-review-code": {
       "description": "Step 3: @3-review-code — reviews CODE QUALITY (bugs, security via Semgrep, anti-patterns) AFTER drift-check. Does not check conformance (that's 2-check-drift's job).",
       "mode": "subagent",
-      "model": "opencode-go/kimi-k2.6",
+      "model": "opencode-go/kimi-k2.7-code",
       "temperature": 1.0,
       "prompt": "{file:./3-review-code.md}",
       "permission": {
