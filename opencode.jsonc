@@ -36,8 +36,7 @@
     },
     "build": {
       "description": "Executing Builder. Implements PLAN.md to the letter, runs tests, leaves changes uncommitted for review.",
-      "model": "deepseek/deepseek-v4-pro",
-      "reasoningEffort": "high",
+      "model": "opencode-go/glm-5.1",
       "prompt": "{file:./build.md}",
       "temperature": 1.0,
       "permission": {
@@ -56,12 +55,12 @@
         }
       }
     },
-    "1-review-plan": {
-      "description": "Step 1: @1-review-plan — reviews the PLAN for judgment flaws BEFORE any code is written.",
+    "1-plan-review": {
+      "description": "Step 1: @1-plan-review — reviews the PLAN for judgment flaws BEFORE any code is written.",
       "mode": "subagent",
       "model": "opencode-go/kimi-k2.7-code",
       "temperature": 1.0,
-      "prompt": "{file:./1-review-plan.md}",
+      "prompt": "{file:./1-plan-review.md}",
       "permission": {
         "edit": "deny",
         "websearch": "allow",
@@ -73,28 +72,13 @@
         }
       }
     },
-    "2-check-drift": {
-      "description": "Step 2: @2-check-drift — checks whether the implementation matches PLAN.md AFTER a build (omissions, deviations, out-of-scope). Does not judge plan quality.",
+    "2-code-review": {
+      "description": "Step 2: @2-code-review — post-build verification: conformance to PLAN.md + code quality (bugs, security via Semgrep, anti-patterns). Bipartite verdict.",
       "mode": "subagent",
-      "model": "opencode-go/glm-5.1",
-      "temperature": 0.6,
-      "prompt": "{file:./2-check-drift.md}",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-          "git status*": "allow",
-          "git diff HEAD*": "allow",
-          "git log*": "allow"
-        }
-      }
-    },
-    "3-review-code": {
-      "description": "Step 3: @3-review-code — reviews CODE QUALITY (bugs, security via Semgrep, anti-patterns) AFTER drift-check. Does not check conformance (that's 2-check-drift's job).",
-      "mode": "subagent",
-      "model": "opencode-go/kimi-k2.7-code",
+      "model": "opencode-go/qwen-3.7-max",
       "temperature": 1.0,
-      "prompt": "{file:./3-review-code.md}",
+      "top_p": 0.95,
+      "prompt": "{file:./2-code-review.md}",
       "permission": {
         "edit": "deny",
         "bash": {
