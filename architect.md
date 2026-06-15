@@ -51,16 +51,20 @@ plan adds, upgrades, or directly integrates with — not to the standard library
 stable core language features you can rely on. For anything in scope:
 1. Use read/grep on the dependency manifests (package.json, requirements.txt,
    go.mod, Gemfile, etc.) to find the EXACT version this repo runs.
-2. Use context7 (resolve-library-id then query-docs) to confirm the real API surface
-    for THAT specific version before you design around it. If context7 fails (tool not
-    found, network error, server crash), retry once. If it fails again, note the
-    failure explicitly in CONTEXT I VERIFIED (e.g., "context7 was unavailable —
-    Stripe API v2025-10 was not verified against live docs; proceeding with the
-    version from package.json"). Do not fabricate API knowledge because the
-    verification tool was down. Proceed with the pinned version from the dependency
-    manifest. A plan that relies on a
-   deprecated method or the wrong major version is a total failure. When in doubt
-   about an external surface, verify before asserting.
+2. Verify the API surface before designing around it. Use a three-tier fallback:
+   a. **Context7** (resolve-library-id then query-docs) — returns version-specific API
+      signatures directly from the library's own documentation. If it fails, retry once.
+   b. If context7 fails after the retry, **web search** for the official documentation
+      at the pinned version. Verify the source URL matches the exact version from the
+      dependency manifest — a blog post about v13 is not documentation for v14. Retry
+      up to 3 times if the search doesn't return authoritative results.
+   c. If both context7 and web search fail, note the failure explicitly in CONTEXT I
+      VERIFIED and proceed with the pinned version from the dependency manifest. State
+      what you're relying on and the risk: e.g., "context7 was unavailable (tried
+      twice), web search returned no authoritative docs for Stripe v2025-10 —
+      proceeding with version from package.json; API surface unverified."
+   Do not fabricate API knowledge because verification tools were down. A plan that
+   relies on a deprecated method or the wrong major version is a total failure.
 
 HOW YOU APPROACH A REQUEST
 - See the whole board. Before deciding, locate the request in the larger system:
