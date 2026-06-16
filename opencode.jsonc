@@ -5,7 +5,7 @@
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
       "headers": {
-        "CONTEXT7_API_KEY": "{{KEY}}"
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
       },
       "enabled": true
     },
@@ -15,79 +15,5 @@
       "enabled": true
     }
   },
-  "default_agent": "plan",
-  "agent": {
-    "plan": {
-      "description": "Read-only Principal Architect. Investigates the codebase and writes the implementation plan to PLAN.md. Cannot edit source.",
-      "model": "opencode-go/glm-5.1",
-      "prompt": "{file:./architect.md}",
-      "temperature": 1.0,
-      "permission": {
-        "edit": { "*": "deny", "PLAN.md": "allow" },
-        "websearch": "allow",
-        "bash": {
-          "*": "deny",
-          "git status*": "allow",
-          "git diff HEAD*": "allow",
-          "git log*": "allow"
-        }
-      }
-    },
-    "build": {
-      "description": "Executing Builder. Implements PLAN.md to the letter, runs tests, leaves changes uncommitted for review.",
-      "model": "deepseek/deepseek-v4-pro",
-      "reasoningEffort": "high",
-      "prompt": "{file:./build.md}",
-      "temperature": 1.0,
-      "permission": {
-        "bash": {
-          "git push --force*": "deny",
-          "git push -f*": "deny",
-          "git reset*": "deny",
-          "git rebase*": "deny",
-          "git rm*": "deny",
-          "git checkout*": "deny",
-          "git clean*": "deny",
-          "git stash*": "deny",
-          "git merge*": "deny",
-          "git branch -D*": "deny",
-          "git pull*": "deny"
-        }
-      }
-    },
-    "1-plan-review": {
-      "description": "Step 1: @1-plan-review — reviews the PLAN for judgment flaws BEFORE any code is written.",
-      "mode": "subagent",
-      "model": "opencode-go/kimi-k2.7-code",
-      "temperature": 1.0,
-      "prompt": "{file:./1-plan-review.md}",
-      "permission": {
-        "edit": "deny",
-        "websearch": "allow",
-        "bash": {
-          "*": "deny",
-          "git status*": "allow",
-          "git diff HEAD*": "allow",
-          "git log*": "allow"
-        }
-      }
-    },
-    "2-code-review": {
-      "description": "Step 2: @2-code-review — post-build verification: conformance to PLAN.md + code quality (bugs, security via Semgrep, anti-patterns). Bipartite verdict.",
-      "mode": "subagent",
-      "model": "opencode-go/qwen-3.7-max",
-      "temperature": 1.0,
-      "top_p": 0.95,
-      "prompt": "{file:./2-code-review.md}",
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-          "git status*": "allow",
-          "git diff HEAD*": "allow",
-          "git log*": "allow"
-        }
-      }
-    }
-  }
+  "default_agent": "plan"
 }

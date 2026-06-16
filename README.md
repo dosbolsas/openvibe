@@ -13,8 +13,8 @@ Designed for a **product-minded operator**: you describe features in plain langu
 | Role | Agent | Job | Model | Why |
 |------|-------|-----|-------|-----|
 | **Architect** | `plan` | Reads the codebase, decides the architecture, writes `PLAN.md`. Cannot touch source code. | GLM-5.1 | Different model family from the builder — eliminates shared blind spots that survive from plan to implementation. |
-| **Builder** | `build` | Implements the plan to the letter, runs tests, leaves changes uncommitted until you say ship. | DeepSeek V4 Pro (Think High) | DeepSeek's reasoning at high effort — strong execution in the iterative build loop. |
-| **Plan Reviewer** | `@1-plan-review` | Independently critiques the *plan* for judgment flaws **before any code is written**. Reads the real codebase itself — does not trust the architect's description of it. | Kimi K2.7 | Different lab → decorrelated blind spots. Highest-intelligence model on Go. |
+| **Builder** | `build` | Implements the plan to the letter, runs tests, leaves changes uncommitted until you say ship. | DeepSeek V4 Pro | DeepSeek's reasoning at high effort — strong execution in the iterative build loop. |
+| **Plan Reviewer** | `@1-plan-review` | Independently critiques the *plan* for judgment flaws **before any code is written**. Reads the real codebase itself — does not trust the architect's description of it. | Kimi K2.7 | Different lab → decorrelated blind spots. |
 | **Code Reviewer** | `@2-code-review` | After the build: conformance to the plan (omissions, deviations, excess) **and** code quality (bugs, security via Semgrep, anti-patterns) in a single pass. Bipartite verdict. | Qwen 3.7 Max | Different lab from both planner and builder — 4 distinct model families with zero overlaps. Backed by Semgrep (5000+ deterministic rules). |
 
 **The single most important thing:** the planner, builder, and reviewers are on four distinct model families. A checker that shared the builder's training distribution would share its blind spots. Decorrelation is the whole game.
@@ -31,15 +31,15 @@ Designed for a **product-minded operator**: you describe features in plain langu
 
 | File | What it is |
 |------|------------|
-| `opencode.jsonc` | Config. Four agents, their models, temperatures, permissions. |
-| `architect.md` | System prompt for `plan`. |
-| `build.md` | System prompt for `build`. |
-| `1-plan-review.md` | System prompt for `@1-plan-review`. |
-| `2-code-review.md` | System prompt for `@2-code-review`. |
+| `opencode.jsonc` | Minimal project config: MCP servers, default agent. No agent definitions — those live in markdown. |
+| `.opencode/agents/plan.md` | Markdown agent for `plan`. YAML frontmatter + system prompt. Overrides the built-in plan agent. |
+| `.opencode/agents/build.md` | Markdown agent for `build`. YAML frontmatter + system prompt. Overrides the built-in build agent. |
+| `.opencode/agents/1-plan-review.md` | Markdown subagent for `@1-plan-review`. YAML frontmatter + system prompt. |
+| `.opencode/agents/2-code-review.md` | Markdown subagent for `@2-code-review`. YAML frontmatter + system prompt. |
 | `.gitignore` | Keeps `PLAN.md` out of commits. |
 | `PLAN.md` | **Generated at runtime** by the architect. The handoff artifact. Not authored by you. |
 
-All files live at the **repo root**, side by side. The config references prompts as `{file:./architect.md}` etc., resolved relative to `opencode.jsonc` — they must stay together. Project config at the repo root overrides global/remote config and is safe to commit, so the pipeline travels with the repo.
+Agents are defined as **markdown files** in `.opencode/agents/` — OpenCode's native agent format. Each file has YAML frontmatter (model, temperature, permissions) followed by the system prompt body. The file name becomes the agent name (`plan.md` → `plan` agent). No separate prompt files, no sync problems, no `{file:}` references to maintain. Everything travels with the repo.
 
 ---
 
@@ -50,7 +50,7 @@ You describe a task (plain language)
         │
         ▼
  ┌─────────────┐   reads repo, writes PLAN.md,
- │  plan (Max) │   shows you a plain-English summary
+ │  plan (GLM) │   shows you a plain-English summary
  └─────────────┘
         │
         ▼
@@ -62,9 +62,9 @@ You describe a task (plain language)
    Tab to build .... shared session: builder has the plan as live context
         │
         ▼
- ┌──────────────┐   reads PLAN.md, implements exactly
- │ build (GLM)  │   that, runs tests,
- └──────────────┘   leaves changes UNCOMMITTED
+ ┌────────────────┐   reads PLAN.md, implements exactly
+ │ build (DeepSeek) │   that, runs tests,
+ └────────────────┘   leaves changes UNCOMMITTED
         │
         ▼
    @2-code-review . reads PLAN.md + git diff + changed files + Semgrep,
@@ -102,6 +102,8 @@ Session context carries operator preferences organically across agent switches. 
 **Version verification is mandatory.** The architect must never design against a third-party API from memory. It reads the pinned version from dependency files, then checks that version's docs via context7. This rule was added after a real failure where a model confidently planned against a deprecated API. Documenting the verified version in the plan is what actually enforces the check.
 
 **Semgrep is the non-LLM guardrail.** `@2-code-review` runs every changed file through Semgrep's MCP — 5000+ deterministic rules, 35+ languages, fires the same way regardless of the LLM's current mood. Findings are cited as `(Semgrep: <rule-id>)`. Degrades gracefully if Semgrep isn't installed. One-time setup: `brew install semgrep`. Note: `SEMGREP_SEND_METRICS=off` breaks the default `auto` config — leave it unset.
+
+**Markdown agents, not JSONC+separate-prompt-files.** The old architecture used `{file:./architect.md}` references in the JSONC config, which resolved relative to the config file's location — not the repo root — causing sync failures when the config lived outside the project. Markdown agents embed the prompt directly in the file, eliminating the sync problem at the root.
 
 ---
 
@@ -153,9 +155,15 @@ Both sections live outside the `<build_specification>` tags so they never confli
 | @1-plan-review | Kimi K2.7 | 1.0 | Moonshot's recommendation for K2.7 thinking mode |
 | @2-code-review | Qwen 3.7 Max | 1.0 (top_p: 0.95) | Qwen's own coding agent benchmarks (SWE-Bench, Terminal-Bench 2.0) use `temp=1.0, top_p=0.95` |
 
-**Provider setup:** `build` runs on **direct DeepSeek** (`deepseek/`). `plan` and the two checker subagents run on **OpenCode Go** (`opencode-go/`) — flat subscription, dollar-denominated limits, zero-retention policy. GLM-5.1 and Qwen 3.7 Max are available on Go. If you'd rather manage one auth and one bill, DeepSeek V4 Pro is also available on Go as `opencode-go/deepseek-v4-pro`.
+**All models run on OpenCode Go** (`opencode-go/`) — flat subscription ($10/month), dollar-denominated limits, zero-retention policy. Single auth, single bill. No mixed providers to debug.
 
-> ⚠️ **Verify every model string** in the `/models` picker before trusting it. A wrong `provider/model` prefix means the agent silently won't load — and the mixed-provider setup is exactly where "looks right in the file, fails on load" hides. Two providers means two auths must both work.
+Model strings (verified against the Go endpoint table):
+- `opencode-go/glm-5.1`
+- `opencode-go/deepseek-v4-pro`
+- `opencode-go/kimi-k2.7`
+- `opencode-go/qwen3.7-max`
+
+> ⚠️ **Verify every model string** in the `/models` picker before trusting it. The Go docs internally contradict on the Kimi ID (endpoint table says `kimi-k2.7`, but a config example says `kimi-k2.7-code`). If `kimi-k2.7` doesn't resolve, try `kimi-k2.7-code`. If Qwen3.7 Max fails, fall back to `opencode-go/minimax-m2.7` (preserves decorrelation — MiniMax is a 5th distinct lab).
 
 ---
 
@@ -165,16 +173,19 @@ Both sections live outside the `<build_specification>` tags so they never confli
 - **Bash permissions are prefix-matched.** Keep deny patterns broad — especially `git push --force*` and `git push * --force`.
 - **Permission `deny` rules behave differently via the SDK** than in interactive desktop use. Interactive use honors them as configured.
 - **Context inheritance across subagents is version-dependent.** Handoffs go through `PLAN.md` on disk rather than relying on inherited context — the checker prompts are written around this.
+- **Markdown agents in `.opencode/agents/` override built-in agents with the same name.** `plan.md` overrides the built-in plan agent; `build.md` overrides the built-in build agent. The file name IS the agent name.
+- **Config precedence:** project `opencode.jsonc` overrides global `~/.config/opencode/opencode.jsonc`. `.opencode/` directories are loaded after project config, so markdown agents take final priority.
 
 ---
 
 ## Quickstart
 
-1. **Copy the files** (`opencode.jsonc` + the four `.md` prompts + `.gitignore`) into your project root, beside each other.
-2. **Connect your providers.** Authenticate DeepSeek (direct) and OpenCode Go (`/connect`). Or consolidate everything onto Go — see the temperature section.
+1. **Copy the files** (`opencode.jsonc` + `.opencode/agents/` directory + `.gitignore`) into your project root.
+2. **Connect OpenCode Go.** Run `/connect` in the TUI, select `OpenCode Go`, paste your API key.
 3. **Install Semgrep** once: `brew install semgrep`. Leave `SEMGREP_SEND_METRICS` unset. Skip this and `@2-code-review` falls back to LLM-only analysis with a note.
-4. **Verify model strings** in `/models`. Fix any that don't resolve.
-5. **Use it:**
+4. **Verify model strings** in `/models`. Fix any that don't resolve (see Kimi/Qwen notes above).
+5. **Set `CONTEXT7_API_KEY`** as an environment variable in your shell profile. The project config uses `{env:CONTEXT7_API_KEY}` for the context7 MCP server.
+6. **Use it:**
 
 | Action | How |
 |--------|-----|
