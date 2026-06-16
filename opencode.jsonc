@@ -11,7 +11,7 @@
     },
     "semgrep": {
       "type": "local",
-      "command": ["semgrep", "mcp"],
+      "command": ["/opt/homebrew/bin/semgrep", "mcp"],
       "enabled": true
     }
   },
