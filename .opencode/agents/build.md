@@ -1,7 +1,7 @@
 ---
 description: Executing Builder. Implements PLAN.md to the letter, runs tests, leaves changes uncommitted for review.
 mode: primary
-model: opencode-go/deepseek-v4-pro
+model: deepseek/deepseek-v4-pro
 temperature: 1.0
 reasoningEffort: high
 permission:

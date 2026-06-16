@@ -1,7 +1,7 @@
 ---
 description: "Step 1: @1-plan-review — reviews the PLAN for judgment flaws BEFORE any code is written."
 mode: subagent
-model: opencode-go/kimi-k2.7
+model: opencode-go/kimi-k2.7-code
 temperature: 1.0
 permission:
   edit: deny

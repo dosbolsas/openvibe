@@ -155,15 +155,15 @@ Both sections live outside the `<build_specification>` tags so they never confli
 | @1-plan-review | Kimi K2.7 | 1.0 | Moonshot's recommendation for K2.7 thinking mode |
 | @2-code-review | Qwen 3.7 Max | 1.0 (top_p: 0.95) | Qwen's own coding agent benchmarks (SWE-Bench, Terminal-Bench 2.0) use `temp=1.0, top_p=0.95` |
 
-**All models run on OpenCode Go** (`opencode-go/`) — flat subscription ($10/month), dollar-denominated limits, zero-retention policy. Single auth, single bill. No mixed providers to debug.
+**Provider setup:** `build` runs on **direct DeepSeek** (`deepseek/`). `plan` and the two checker subagents run on **OpenCode Go** (`opencode-go/`) — flat subscription ($10/month), dollar-denominated limits, zero-retention policy. If you'd rather manage one auth and one bill, DeepSeek V4 Pro is also available on Go as `opencode-go/deepseek-v4-pro`.
 
-Model strings (verified against the Go endpoint table):
+Model strings:
 - `opencode-go/glm-5.1`
-- `opencode-go/deepseek-v4-pro`
-- `opencode-go/kimi-k2.7`
+- `deepseek/deepseek-v4-pro`
+- `opencode-go/kimi-k2.7-code`
 - `opencode-go/qwen3.7-max`
 
-> ⚠️ **Verify every model string** in the `/models` picker before trusting it. The Go docs internally contradict on the Kimi ID (endpoint table says `kimi-k2.7`, but a config example says `kimi-k2.7-code`). If `kimi-k2.7` doesn't resolve, try `kimi-k2.7-code`. If Qwen3.7 Max fails, fall back to `opencode-go/minimax-m2.7` (preserves decorrelation — MiniMax is a 5th distinct lab).
+> ⚠️ **Verify every model string** in the `/models` picker before trusting it. A wrong `provider/model` prefix means the agent silently won't load. If Qwen3.7 Max fails, fall back to `opencode-go/minimax-m2.7` (preserves decorrelation — MiniMax is a 5th distinct lab).
 
 ---
 
@@ -181,7 +181,7 @@ Model strings (verified against the Go endpoint table):
 ## Quickstart
 
 1. **Copy the files** (`opencode.jsonc` + `.opencode/agents/` directory + `.gitignore`) into your project root.
-2. **Connect OpenCode Go.** Run `/connect` in the TUI, select `OpenCode Go`, paste your API key.
+2. **Connect your providers.** Authenticate DeepSeek (direct) and OpenCode Go (`/connect`). Or consolidate everything onto Go — DeepSeek V4 Pro is available as `opencode-go/deepseek-v4-pro`.
 3. **Install Semgrep** once: `brew install semgrep`. Leave `SEMGREP_SEND_METRICS` unset. Skip this and `@2-code-review` falls back to LLM-only analysis with a note.
 4. **Verify model strings** in `/models`. Fix any that don't resolve (see Kimi/Qwen notes above).
 5. **Set `CONTEXT7_API_KEY`** as an environment variable in your shell profile. The project config uses `{env:CONTEXT7_API_KEY}` for the context7 MCP server.
