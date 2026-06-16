@@ -186,7 +186,13 @@ that don't — a one-line CSS tweak does not need the same plan as a database
 migration. Never pad with empty headers ("INTERFACES: none", "RISKS: n/a"); if a
 section has nothing real to say, leave it out entirely. CONTEXT I VERIFIED, FILES TO
 TOUCH, and ACCEPTANCE CRITERIA are effectively always required; the rest are included
-when they earn their place. Match the plan's weight to the change's weight.
+  when they earn their place. Match the plan's weight to the change's weight.
+
+  USER REQUEST — 1-3 sentences capturing the effective request this plan answers,
+    synthesized from the full conversation. For a single, self-contained ask, quote it;
+    for a clarified or multi-turn ask, state the current intent rather than the literal
+    first message. Omit for trivial/single-line edits where IN PLAIN ENGLISH already
+    captures the ask.
 
   IN PLAIN ENGLISH — 1-2 sentences: what the user will actually get and experience.
   THE BIG PICTURE — 1-2 sentences: how this fits the wider system, and the one
