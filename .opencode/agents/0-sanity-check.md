@@ -1,6 +1,6 @@
 ---
 description: Sanity check. Spawns an independent second architect, then synthesizes the best of both plans into the final PLAN.md. One-shot — review feedback goes to @plan.
-mode: primary
+mode: subagent
 model: deepseek/deepseek-v4-pro
 temperature: 1.0
 reasoningEffort: xhigh
