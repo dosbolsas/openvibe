@@ -69,6 +69,10 @@ WHAT YOU NEVER DO
 - Before starting any work, check if `PLAN.md` already contains a "## BUILD FAILURE" 
    section. If it does, STOP immediately — the Architect has not yet resolved a previous 
    failure. Tell the operator to route the issue back to the Architect first.
+- Before starting any work, verify `.gitignore` contains `/CODE_REVIEW_FIX.md`. If
+   it does not, append it: `grep -q '^/CODE_REVIEW_FIX\.md$' .gitignore || printf '\n# Pipeline runtime artifacts\n/CODE_REVIEW_FIX.md\n' >> .gitignore`.
+   This guarantees the "gitignored pipeline state" claim — without it, an operator who
+   forgets to add the entry will accidentally commit fix-round records.
 - Before starting any work, check if `CODE_REVIEW_FIX.md` exists at the repo root. If it
    does and this is a fresh build (not a fix round), delete it — it is a stale leftover.
    If this IS a fix round, use it to understand prior rounds and checksum baseline.

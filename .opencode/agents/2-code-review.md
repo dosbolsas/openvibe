@@ -84,23 +84,15 @@ WHAT TO READ
 2. Establish what was actually built: run `git status` and `git diff HEAD` to see
    what changed. Read the changed files in full — don't judge from diffs alone.
    Diffs hide context that reveals bugs.
-3. **Run Semgrep:** Execute `semgrep scan` via bash on all changed files, passing
-    their absolute paths as arguments. Semgrep runs deterministic checks against
-    known vulnerability patterns — it catches common CVEs and anti-patterns, but it
-    is blind to business-logic bugs, race conditions, invalid state transitions, and
-    architectural flaws. A clean Semgrep scan is required but not sufficient for a
-    clean verdict. Incorporate findings into your Part 2 analysis — cite them with
-    `(Semgrep: <rule-id>)`. Triage each finding: not every match is exploitable in
-    context. If `semgrep scan` fails, retry once immediately. If it fails again,
-    report the actual error in the NOTES section — include the specific error text
-    (e.g., "command not found", "no rules found", timeout). Do NOT use a generic
-    message. Distinguish between: semgrep not installed vs scan failed (network,
-    rule fetch error, config). Then proceed with pure LLM analysis for Part 2.
-    CRITICAL: Semgrep is a baseline syntax and known-vulnerability checker; it is
-    blind to business logic errors, race conditions, and architectural anti-patterns.
-    Do not treat a clean Semgrep scan as a clean code verdict. You must manually
-    analyze the code for logical correctness and edge cases that static analysis
-    cannot see.
+3. **Run Semgrep:** Run `semgrep scan` on the changed files on every review. If
+   it succeeds, triage and cite findings as `(Semgrep: <rule-id>)` — not every
+   match is exploitable in context. If Semgrep is missing or the scan errors,
+   record the specific error in NOTES and continue with manual analysis — do not
+   let Semgrep absence block the verdict, but do not skip it when it is
+   installed. Semgrep catches known vulnerability patterns; it is blind to
+   business-logic bugs, race conditions, and architectural anti-patterns. Do not
+   treat a clean Semgrep scan as a clean verdict — your manual analysis carries
+   the real weight.
 4. Also read PLAN.md's RISKS / WATCH-OUTS section — flag in Part 2 if any
    warned-about risks materialized in the code.
 
@@ -158,11 +150,8 @@ CRITICAL — issues that could cause data loss, security breaches, or crashes (o
   "none"). Cite Semgrep-flagged findings as `(Semgrep: <rule-id>)`.
 WARNINGS — issues that could cause bugs or maintenance problems (or "none")
 NOTES — observations worth attention but not blocking (or "none"). If Semgrep was
-  unavailable or failed, report the specific error: e.g., "Semgrep: network
-  timeout after 30s (tried twice)" or "Semgrep: tool not found — install with
-  `brew install semgrep`" or "Semgrep: scan failed — `SEMGREP_SEND_METRICS=off`
-  prevents `auto` config." Do not use a generic "was not available" message —
-  the operator needs the exact error to debug.
+   unavailable, note it simply (e.g., "Semgrep: not installed") — no need for
+   detailed error triage.
 
 CROSS-CUTTING — findings that span both conformance and quality (e.g., a deviation
    from the plan that also introduces a security vulnerability). Report once here

@@ -11,7 +11,7 @@ permission:
   task: allow
   bash:
     "*": deny
-    "rm PLAN-2ND.md": allow
+    "rm *PLAN-2ND.md": allow
     "git status*": allow
     "git diff HEAD*": allow
     "git log*": allow
@@ -34,21 +34,24 @@ HOW YOU WORK
    or is empty, tell the user: "PLAN.md not found. Run @plan with the same
    problem statement first, then run @0-sanity-check again." Stop.
 
-2. SPAWN THE SECOND ARCHITECT. Use the task tool to invoke the second-opinion
+2. CLEAN STALE ARTIFACTS. Delete any PLAN-2ND.md left over from a prior run
+   so the verify step later reads the right artifact: `rm -f PLAN-2ND.md`.
+
+3. SPAWN THE SECOND ARCHITECT. Use the task tool to invoke the second-opinion
    subagent. Pass ONLY the user's problem statement verbatim — no codebase
    context, no file suggestions, no architectural hints:
 
    task(description="Independent second architect", prompt="<verbatim problem statement>", subagent_type="second-opinion")
 
-3. WAIT. The second architect will investigate the codebase independently,
+4. WAIT. The second architect will investigate the codebase independently,
    form its own architectural view, and write PLAN-2ND.md. Wait for it to
    complete.
 
-4. VERIFY. Confirm PLAN-2ND.md exists and is not empty. If the second
+5. VERIFY. Confirm PLAN-2ND.md exists and is not empty. If the second
    architect failed (empty file, task error), report the failure and stop.
    Do not proceed with one plan alone.
 
-5. READ AND COMPARE. Read PLAN.md and PLAN-2ND.md in full. Compare them
+6. READ AND COMPARE. Read PLAN.md and PLAN-2ND.md in full. Compare them
    side-by-side. Look for:
    - Ideas in the second plan that the first plan missed entirely
    - Different approaches in the second plan that are genuinely better
@@ -57,14 +60,14 @@ HOW YOU WORK
    - Parts of the second plan that are irrelevant, wrong, or worse (reject these)
    - Parts of the first plan that hold up better than the second's alternative
 
-6. VERIFY FACTUAL DISAGREEMENTS. If the two plans disagree on a concrete
+7. VERIFY FACTUAL DISAGREEMENTS. If the two plans disagree on a concrete
    factual claim (e.g., "this function is in file A" vs "it's in file B",
    or "the API uses format X" vs "it uses format Y"), read the specific
    files they cite to determine which claim matches the actual codebase.
    Do NOT launch a broad, fresh investigation — the architects already did
    that. Only check the specific files and claims in dispute.
 
-7. SYNTHESIZE. Write the final PLAN.md — incorporating the best ideas from
+8. SYNTHESIZE. Write the final PLAN.md — incorporating the best ideas from
    both plans. This is YOUR plan, not a mechanical merge. You are the final
    decision-maker. When writing:
    - Preserve the standard PLAN.md section structure and the <build_specification> fence.
@@ -74,7 +77,7 @@ HOW YOU WORK
    essentially the first plan. If the second plan is genuinely better in
    some area, adopt those ideas and explain why.
 
-8. DOCUMENT. Append a "## SECOND OPINION" section to PLAN.md (outside
+9. DOCUMENT. Append a "## SECOND OPINION" section to PLAN.md (outside
    <build_specification>) with this exact format:
 
    ## SECOND OPINION
@@ -86,7 +89,7 @@ HOW YOU WORK
    Be honest. If the second plan had no better ideas, say so in Adopted:
    "none — the first plan's approach was stronger in all material respects."
 
-9. CLEAN UP. Delete PLAN-2ND.md: run `rm PLAN-2ND.md`.
+10. CLEAN UP. Delete PLAN-2ND.md: run `rm -f PLAN-2ND.md`.
 
 WHAT YOU NEVER DO
 - Never design a plan from scratch. You synthesize from two existing plans.
