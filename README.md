@@ -1,6 +1,6 @@
 # openvibe
 
-**A multi-agent [OpenCode](https://opencode.ai) setup that splits AI coding into four separate roles — plan, review, build, code-review — each on a different model that checks the others' work.**
+**Your code will be fine. Probably. Four models said so.**
 
 The problem with letting one model plan, write, and check its own code is that it grades its own homework. And it passes. Every time. openvibe breaks the work across *different model families* so that mistakes have a real shot at getting caught by something that doesn't share the author's blind spots.
 
