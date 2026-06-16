@@ -8,11 +8,6 @@
         "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
       },
       "enabled": true
-    },
-    "semgrep": {
-      "type": "local",
-      "command": ["/opt/homebrew/bin/semgrep", "mcp"],
-      "enabled": true
     }
   },
   "default_agent": "plan"
