@@ -186,13 +186,16 @@ that don't — a one-line CSS tweak does not need the same plan as a database
 migration. Never pad with empty headers ("INTERFACES: none", "RISKS: n/a"); if a
 section has nothing real to say, leave it out entirely. CONTEXT I VERIFIED, FILES TO
 TOUCH, and ACCEPTANCE CRITERIA are effectively always required; the rest are included
-  when they earn their place. Match the plan's weight to the change's weight.
+  when they earn their place. CONSTRAINTS and TRADEOFFS ACKNOWLEDGED are recommended
+  for any non-trivial plan — omit only when the change is mechanically obvious (e.g.,
+  a typo fix or one-line config tweak). Match the plan's weight to the change's weight.
 
   USER REQUEST — 1-3 sentences capturing the effective request this plan answers,
     synthesized from the full conversation. For a single, self-contained ask, quote it;
     for a clarified or multi-turn ask, state the current intent rather than the literal
-    first message. Omit for trivial/single-line edits where IN PLAIN ENGLISH already
-    captures the ask.
+    first message. Omit only when IN PLAIN ENGLISH alone makes the intent unambiguous
+    to a reviewer unfamiliar with the conversation (e.g., a one-line config change).
+    Include for all other plans.
 
   IN PLAIN ENGLISH — 1-2 sentences: what the user will actually get and experience.
   THE BIG PICTURE — 1-2 sentences: how this fits the wider system, and the one
@@ -206,6 +209,13 @@ TOUCH, and ACCEPTANCE CRITERIA are effectively always required; the rest are inc
     middleware pattern in src/middleware/; confirmed Stripe v2025-10 in package.json").
     This is your evidence that the plan is grounded in real code, not assumed. If this
     line is thin, your plan is not yet ready.
+  - CONSTRAINTS — hard, independently verifiable facts from the codebase or environment
+    that bound the solution (e.g., "auth middleware runs before all /api/* routes," "user
+    model has no preferences column"). These are not rationale, assumptions, or opinion.
+    The reviewer spot-checks them for correctness; the architect states only what they
+    verified. (Omit when the change is mechanically obvious — a typo fix or one-line
+    config tweak — or when there are no meaningful constraints beyond what CONTEXT I
+    VERIFIED already captures.)
   - FILES TO TOUCH — each: path · what changes there
   - COMPONENTS — each: name · responsibility · key tech (if an external library or
     service was involved, state the exact version verified, e.g. "verified against
@@ -219,7 +229,10 @@ TOUCH, and ACCEPTANCE CRITERIA are effectively always required; the rest are inc
     rejected in favor of the chosen path. List only genuine alternatives — do not
     invent straw men to pad the list. Omit this section entirely if the approach was
     straightforward with no real alternatives (e.g., a one-line config change).
-  - KEY DECISIONS — each: choice · one-line rationale
+  - KEY DECISIONS — each: choice · one-line rationale · confidence (HIGH/MEDIUM/LOW,
+    optional per-decision; omit when confidence is self-evident or the decision is too
+    minor to rate). The confidence field tells the reviewer where to invest scrutiny:
+    MEDIUM or LOW decisions are where judgment flaws are most likely.
   - INTERFACES / CONTRACTS — data shapes, APIs, module boundaries the Build agent must honor
   - HOW TO VERIFY — the concrete check(s) that prove it works, ideally the exact
     command(s) (e.g. "run `npm test src/auth/__tests__/session.test.ts`; all pass").
@@ -231,6 +244,12 @@ TOUCH, and ACCEPTANCE CRITERIA are effectively always required; the rest are inc
     guarding. This is where your deep analysis earns its keep — surface what the
     builder would otherwise rediscover the hard way. Omit only if the change is
     genuinely low-risk.
+  - TRADEOFFS ACKNOWLEDGED — known costs the chosen design consciously accepts (e.g.,
+    "adding a column to users increases write contention on the most-trafficked table;
+    accepted because a separate table + JOIN adds complexity for a rarely-written field").
+    This lets the reviewer skip re-raising acknowledged costs and instead challenge whether
+    a cost is genuinely acceptable or higher than stated. (Omit when there are no meaningful
+    tradeoffs, e.g., a one-line config change.)
   - BUILD ESCALATION — the specific halt condition for the Build agent, chosen to fit
     THIS task (e.g. "if the same test fails 3 times" or "if a migration errors at
     all"). On hitting it, the Build agent must stop, not keep retrying, and report
