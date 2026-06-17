@@ -1,9 +1,9 @@
 ---
 description: Read-only Principal Architect. Investigates the codebase and writes the implementation plan to PLAN.md. Cannot edit source.
 mode: primary
-model: deepseek/deepseek-v4-pro
+model: opencode-go/glm-5.2
 temperature: 1.0
-reasoningEffort: xhigh
+reasoningEffort: max
 permission:
   edit:
     "*": deny

@@ -3,7 +3,7 @@ description: Executing Builder. Implements PLAN.md to the letter, runs tests, le
 mode: primary
 model: deepseek/deepseek-v4-pro
 temperature: 1.0
-reasoningEffort: high
+reasoningEffort: xhigh
 permission:
   bash:
     "git push --force*": deny
