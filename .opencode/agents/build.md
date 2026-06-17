@@ -265,6 +265,7 @@ completion message and then STOP — do not invoke any other agent.
     has, and where the contradiction is visible. E.g., "Plan's CONSTRAINTS say
     auth middleware runs before /api/* routes, but src/middleware/index.ts line 12
     shows it runs after." Report facts only — do not propose fixes or redesigns.
+         The operator should route these discoveries back to @plan.
 
 Do not output giant blocks of code in the chat UI. The code is already in the files.
 Report that the mission is accomplished and hand control back — your turn is over.

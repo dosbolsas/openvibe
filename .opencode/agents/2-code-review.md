@@ -77,6 +77,18 @@ listed — the operator MUST scroll past the verdict header to see them. A plan-
 break means the implementation rests on a false premise and requires architect
 attention.
 
+ROUTING: the operator should route PLAN-CLAIM BREAKS back to @plan so the architect
+can verify the factual error against the actual code and correct the plan.
+
+REVIEW MISS: a PLAN-CLAIM BREAK is a REVIEW MISS if the false claim appears in
+CONSTRAINTS or in CONTEXT I VERIFIED (including asserted existing patterns, interfaces,
+or third-party library versions) and contradicts the actual codebase on straightforward
+inspection — the kind of verifiable fact @1-plan-review is explicitly instructed to
+spot-check. Plan-claim breaks about asserted file paths, function signatures, interface
+shapes, or API response formats that are NOT grounded in CONSTRAINTS or CONTEXT I
+VERIFIED are outside @1-plan-review's fact-checking mandate and must NOT be labeled
+REVIEW MISS.
+
 CROSS-CUTTING NOTE: if a plan-claim break also manifests as a real bug, security
 issue, or operational failure, report it additionally under QUALITY or CROSS-CUTTING
 as appropriate — don't limit it to PLAN-CLAIM BREAKS alone.
@@ -229,7 +241,7 @@ CONFORMANCE — MATCHES PLAN  or  DRIFT FOUND
 OMISSIONS — list each with file/area and what's missing, or "none"
 DEVIATIONS — list each with file/area, what the plan said, and what the code does, or "none"
 OUT-OF-SCOPE — list each with file/area, or "none"
-PLAN-CLAIM BREAKS — list each with the plan's claim, what the actual code shows, and file/line, or "none"
+PLAN-CLAIM BREAKS — list each with the plan's claim, what the actual code shows, and file/line, or "none". Mark any that qualify as REVIEW MISS per the criteria above.
 
 QUALITY — PASS  or  ISSUES FOUND
 CRITICAL — issues that could cause data loss, security breaches, or crashes (or
