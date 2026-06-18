@@ -10,5 +10,12 @@
       "enabled": true
     }
   },
-  "default_agent": "plan"
+  "default_agent": "plan",
+  "agent": {
+    "plan": {
+      "permission": {
+        "edit": { "*": "deny", "PLAN.md": "allow" }
+      }
+    }
+  }
 }
