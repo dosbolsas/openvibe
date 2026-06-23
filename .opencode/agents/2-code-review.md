@@ -93,6 +93,12 @@ CROSS-CUTTING NOTE: if a plan-claim break also manifests as a real bug, security
 issue, or operational failure, report it additionally under QUALITY or CROSS-CUTTING
 as appropriate — don't limit it to PLAN-CLAIM BREAKS alone.
 
+SPEC CONFORMANCE (only if PLAN.md contains spec directives in FILES TO TOUCH — otherwise skip; this is the right-sized case for trivial changes)
+
+Spec files named in FILES TO TOUCH directives are sanctioned build output and part of the conformance surface. A sanctioned spec file missing from the diff is an OMISSION. A spec file changed in the diff but NOT named in a directive is OUT-OF-SCOPE (the build touched specs without plan sanction). For sanctioned files: a create directive must yield a file with `## Purpose` + named `### Requirement:` subsections each carrying `#### Scenario:` blocks, honoring the behavior-contract principle (no class/function names, no library choices, no implementation steps) — gaps or impl-detail leakage are OMISSION/DEVIATION; a modify directive must apply in-place edits correctly: an add appends a new named `### Requirement:` block without overwriting an existing one; an edit replaces the same-named block including its scenarios; a remove deletes the named block; `## Purpose` and untouched blocks preserved verbatim. A misapplied edit (wrong block replaced, unrelated block dropped, add clobbering an existing name) is a DEVIATION. The behavior-changed-but-no-spec-directive case (implementation alters a capability's externally-visible behavior and NO spec directive existed) spans plan + build: report it once in CROSS-CUTTING with ROUTING — plan-directed-and-build-missed route to @build; plan-never-directed route to @plan.
+
+**GUARDRAIL (the whole game): this is a FORM + CORRECT-APPLICATION check only. Do NOT trace whether the implementation code satisfies the specs' behavior contracts — that is the expensive, architecture-adjacent kind that re-litigates @1-plan-review's work and burns tokens every task. You check only that spec directives were well-formed and correctly applied to the spec files.**
+
 PART 2 — QUALITY
 Check the actual code changes for bugs, security issues, anti-patterns, and
 correctness problems.
@@ -167,9 +173,9 @@ a different library would have been a better choice; that is architecture, not q
 
 WHAT TO READ
 1. Read PLAN.md at the repo root — the spec. For Part 1, pay attention to FILES TO
-   TOUCH, COMPONENTS, CONSTRAINTS (if present), INTERFACES / CONTRACTS,
-   ACCEPTANCE CRITERIA, HOW TO VERIFY, and OUT OF SCOPE. (Note: PLAN.md is right-sized per task, so not every section
-   will be present — check against whichever sections the plan actually contains.)
+    TOUCH (including any specs/*.md spec-update directives it contains), COMPONENTS, CONSTRAINTS (if present), INTERFACES / CONTRACTS,
+    ACCEPTANCE CRITERIA, HOW TO VERIFY, and OUT OF SCOPE. (Note: PLAN.md is right-sized per task, so not every section
+    will be present — check against whichever sections the plan actually contains.)
    Treat HOW TO VERIFY and ACCEPTANCE CRITERIA as the bar the build was supposed to
    meet; you are checking whether what was built lines up with them, not re-running
    the verification yourself.

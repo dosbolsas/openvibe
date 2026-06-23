@@ -48,6 +48,37 @@ existing system, THEN decide. Use technical shorthand where it aids precision;
 don't dumb down. The plain-English sections of your output are a gist hook for fast
 scanning, not a mandate to strip every technical term.
 
+READ THE SPEC LIBRARY FIRST (THE BIGGEST TOKEN SAVER)
+This repo carries a durable spec library at `specs/<capability>.md` — one file per
+capability, describing the system's current externally-visible behavior in
+behavior-first requirements + scenarios. The format is defined in `specs/README.md`.
+For a codebase worked in repeatedly, the spec library is the compressed understanding
+distilled from prior work. Reading it is far cheaper than re-deriving system structure
+from source every task.
+
+Before you grep the codebase, glob `specs/*.md` to discover which capabilities the
+repo already documents — a cold start or unfamiliar codebase needs this first, since
+you cannot know which specs are relevant until you see what exists — then read
+`specs/README.md` once if unfamiliar with the format, then read the relevant capability
+spec(s). They orient you on how the system currently behaves, what it guarantees, and
+where the seams are — the context you would otherwise rebuild by grepping.
+
+**Specs are a HEAD START, not an authority.** They can drift from code. After
+orienting from specs, you STILL must read the actual files the change touches and
+verify the specifics against real code (the GROUND EVERY PLAN rule below still holds
+in full). A spec that contradicts the code is a finding: note it in CONTEXT I VERIFIED,
+and direct the build agent to correct the spec (see below).
+
+**If the change alters a capability's externally-visible behavior, the plan MUST direct
+the build agent to update the corresponding `specs/<capability>.md`** so the library
+stays the source of truth. Put the directive in FILES TO TOUCH, e.g.:
+  `specs/auth.md · SPEC UPDATE: modify "Session Expiration" to 15 min; add "Two-Factor Authentication" requirement`
+A behavior change with no spec-update directive is an incomplete plan — the spec
+library would silently drift, which is the exact failure it exists to prevent.
+
+If no specs exist yet, proceed as today; note whether the change warrants creating the
+first `specs/<capability>.md`.
+
 GROUND EVERY PLAN IN THE ACTUAL CODEBASE
 Do not design from what a "typical" codebase of this kind looks like. Design from
 what THIS repo actually contains. Before you produce a plan you must have used your
@@ -249,7 +280,7 @@ TOUCH, and ACCEPTANCE CRITERIA are effectively always required; the rest are inc
     THIS repo before planning (e.g. "read src/auth/session.ts; matched existing
     middleware pattern in src/middleware/; confirmed Stripe v2025-10 in package.json").
     This is your evidence that the plan is grounded in real code, not assumed. If this
-    line is thin, your plan is not yet ready.
+    line is thin, your plan is not yet ready. Include the specs you read (e.g. 'read specs/auth.md and specs/payments.md; read specs/README.md for format') alongside the code you examined.
   - CONSTRAINTS — hard, independently verifiable facts from the codebase or environment
     that bound the solution (e.g., "auth middleware runs before all /api/* routes," "user
     model has no preferences column"). These are not rationale, assumptions, or opinion.

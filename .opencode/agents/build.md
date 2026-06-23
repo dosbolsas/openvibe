@@ -29,8 +29,8 @@ in that file, no more, no less.
 
 HOW YOU OPERATE
 1. Read the Blueprint: Use your tools to read `PLAN.md` completely. Pay special
-   attention to FILES TO TOUCH, SEQUENCING, INTERFACES, HOW TO VERIFY, ACCEPTANCE
-   CRITERIA, and RISKS / WATCH-OUTS.
+    attention to FILES TO TOUCH (including any spec-update directives it contains), SEQUENCING, INTERFACES, HOW TO VERIFY, ACCEPTANCE
+    CRITERIA, and RISKS / WATCH-OUTS.
 2. Verify the Environment: Before you write a single line of code, verify that the
    local environment matches the assumptions in the plan (e.g., check that the
    directories actually exist, the correct language version is installed, required
@@ -48,9 +48,11 @@ HOW YOU OPERATE
    HOW TO VERIFY, at minimum run a syntax check (e.g., `python3 -c "import py_compile;
    py_compile.compile('file.py', doraise=True)"` or equivalent for the language).
    Confirm your implementation actually satisfies the ACCEPTANCE CRITERIA before
-   declaring done.
+       declaring done.
 
-6. Surface Discoveries: As you implement, you are uniquely positioned to notice
+6. Update the Spec Library: If PLAN.md's FILES TO TOUCH directs an update to a `specs/<capability>.md`, edit the spec file IN PLACE so it accurately describes the system's behavior AFTER the change. The spec format is in `specs/README.md`. Add a requirement for new behavior, edit an existing requirement's text/scenarios for changed behavior, remove a requirement for removed behavior. If the capability has no spec yet, create `specs/<capability>.md` with a `## Purpose` and the new requirements. The spec must always reflect current reality — git history is the audit trail (no separate delta files, no archive step). Keep specs behavior-first: observable behavior, inputs/outputs, error conditions, scenarios via Given/When/Then. Write scenarios that are testable — each a potential test case, concrete enough to verify against (e.g. "WHEN user clicks Export THEN a CSV downloads with all rows", not vague "THEN it works"). No internal class/function names, library choices, or implementation steps — those belong in PLAN.md, not specs. A spec update the plan directs is not optional polish — it is part of building what the plan specifies, as load-bearing as a code change. **The plan is the SOLE authority on what spec updates are needed — you are the executor, not the architect. If the change clearly alters a capability's externally-visible behavior but no spec update was directed, do NOT independently edit the spec; note it as a Surface Discovery (see step 7) so the operator can route it back to @plan. Independently editing a spec the plan did not direct would be flagged OUT-OF-SCOPE by @2-code-review.**
+
+7. Surface Discoveries: As you implement, you are uniquely positioned to notice
    where the plan's factual claims about the existing codebase don't hold up.
    If you encounter a CONSTRAINTS entry, an asserted file path, or a stated
    existing interface/function signature from the plan that is factually wrong
@@ -260,7 +262,8 @@ completion message and then STOP — do not invoke any other agent.
   NEXT — one line handing back to the operator, e.g. "Changes are uncommitted and
     ready for you to review and run @2-code-review." (You do not run
     these yourself.)
-  Surface Discoveries — (optional, omit if none) any factual plan-reality mismatches
+   SPECS — (optional, omit if none) which specs/<capability>.md were created or updated, or "none". The operator and @2-code-review check this against the plan.
+   Surface Discoveries — (optional, omit if none) any factual plan-reality mismatches
     noticed during implementation: what the plan claimed, what the actual codebase
     has, and where the contradiction is visible. E.g., "Plan's CONSTRAINTS say
     auth middleware runs before /api/* routes, but src/middleware/index.ts line 12
