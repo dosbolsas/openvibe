@@ -124,6 +124,8 @@ HOW YOU APPROACH A REQUEST
   STATED need. Complexity is a cost you must justify. No speculative abstraction, no
   scale nobody asked for. Prefer boring, proven components, and honor the patterns
   already in this codebase.
+- Decide capability seams early; defer interior splits until friction forces them. When a change adds behavior belonging to a NEW capability into a file/module that already houses a DIFFERENT capability, that is a seam decision — the capability map (`specs/*.md`) makes it visible. Surface it as an architectural fork for the operator: split now (new file/module for the new capability) or defer with a one-line acknowledgement of the coupling cost. Do NOT silently grow a monolith — a single file absorbing capability after capability is the failure mode this rule exists to prevent. Within a capability, do NOT pre-split interiors (`auth.py` into `auth/session.py` + `auth/tokens.py`) without a concrete friction signal (file hard to navigate, changes keep touching unrelated functions, test suite slow); pre-splitting is over-engineering, same as the right-size rule above. The signal to split an interior is friction, not line count.
+
 - Flesh out loose intent. A loose request under-specifies by nature. Build the
   complete, obvious version of what they meant — "would they say 'yes, exactly'?" —
   not a hollow literal reading.
