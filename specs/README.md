@@ -1,7 +1,7 @@
 # Spec Library Charter
 
 ## What this library is
-Every project cloned from openvibe carries a durable `specs/<capability>.md` library. One file per capability. Each spec describes the system's CURRENT externally-visible behavior in a format agents can read as compressed context — replacing the need to re-grep the whole codebase every task.
+This project carries a durable `specs/<capability>.md` library. One file per capability. Each spec describes the system's CURRENT externally-visible behavior in a format agents can read as compressed context — replacing the need to re-grep the whole codebase every task.
 
 ## File naming
 `specs/<capability>.md`, kebab-case, one file per capability. Examples: `specs/user-auth.md`, `specs/data-export.md`, `specs/payments.md`. New capabilities get new files as the project grows.
@@ -44,13 +44,13 @@ A spec is a **behavior contract**, not an implementation plan.
 **Lite spec (default):** Short behavior-first requirements, clear scope, a few concrete scenarios. The right size for most capabilities. **Full spec:** Only for cross-cutting changes, API/contract changes, migrations, or security/privacy concerns where ambiguity would be expensive. Default Lite.
 
 ## In-place update convention
-Specs always describe CURRENT behavior. When a change alters a capability's externally-visible requirements, the build agent edits the spec IN PLACE: **add** a new `### Requirement:` block for new behavior; **edit** an existing requirement's text/scenarios for changed behavior; **remove** a requirement block for removed behavior. Git history is the delta and audit trail. No separate delta files, no ADDED/MODIFIED/REMOVED delta sections in the spec, no archive step. The spec IS the current truth.
+Specs always describe CURRENT behavior. When a change alters a capability's externally-visible requirements, the builder agent edits the spec IN PLACE: **add** a new `### Requirement:` block for new behavior; **edit** an existing requirement's text/scenarios for changed behavior; **remove** a requirement block for removed behavior. Git history is the delta and audit trail. No separate delta files, no ADDED/MODIFIED/REMOVED delta sections in the spec, no archive step. The spec IS the current truth.
 
 ## Pipeline contract
-- **@plan** reads `specs/*.md` as context before grepping the codebase. Specs are a head start, not an authority — the plan agent must still verify specifics against actual code. When a task alters a capability's behavior, the plan directs a spec update via `specs/<capability>.md · SPEC UPDATE: <add/modify/remove which requirements>` in FILES TO TOUCH.
-- **@build** applies the spec update in place (format in this README). Plan-directed spec updates are load-bearing — they are part of building what the plan specifies, not optional polish.
+- **@architect** reads `specs/*.md` as context before grepping the codebase. Specs are a head start, not an authority — the plan agent must still verify specifics against actual code. When a task alters a capability's behavior, the plan directs a spec update via `specs/<capability>.md · SPEC UPDATE: <add/modify/remove which requirements>` in FILES TO TOUCH.
+- **@builder** applies the spec update in place (format in this README). Plan-directed spec updates are load-bearing — they are part of building what the plan specifies, not optional polish.
 - **@1-plan-review** flags plans that change behavior with no spec-update directive, or that silently contradict existing spec requirements. Spot-checks directive form/grounding: modify/remove targets must exist, add targets must not duplicate, create targets must not already exist.
-- **@2-code-review** verifies spec directives were correctly applied (form and correct-application only — never traces whether code satisfies spec behavior, which is @1-plan-review's lane). Sanctioned spec files missing from the diff = OMISSION. Unsanctioned spec touches = OUT-OF-SCOPE. Misapplied edits = DEVIATION. Behavior changed with no directive = CROSS-CUTTING (route to @plan).
+- **@2-code-review** verifies spec directives were correctly applied (form and correct-application only — never traces whether code satisfies spec behavior, which is @1-plan-review's lane). Sanctioned spec files missing from the diff = OMISSION. Unsanctioned spec touches = OUT-OF-SCOPE. Misapplied edits = DEVIATION. Behavior changed with no directive = CROSS-CUTTING (route to @architect).
 
 ## Example
 A 1-requirement, 2-scenario spec — the default Lite size:

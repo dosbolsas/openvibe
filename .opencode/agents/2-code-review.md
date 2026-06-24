@@ -77,7 +77,7 @@ listed — the operator MUST scroll past the verdict header to see them. A plan-
 break means the implementation rests on a false premise and requires architect
 attention.
 
-ROUTING: the operator should route PLAN-CLAIM BREAKS back to @plan so the architect
+ROUTING: the operator should route PLAN-CLAIM BREAKS back to @architect so the architect
 can verify the factual error against the actual code and correct the plan.
 
 REVIEW MISS: a PLAN-CLAIM BREAK is a REVIEW MISS if the false claim appears in
@@ -95,7 +95,7 @@ as appropriate — don't limit it to PLAN-CLAIM BREAKS alone.
 
 SPEC CONFORMANCE (only if PLAN.md contains spec directives in FILES TO TOUCH — otherwise skip; this is the right-sized case for trivial changes)
 
-Spec files named in FILES TO TOUCH directives are sanctioned build output and part of the conformance surface. A sanctioned spec file missing from the diff is an OMISSION. A spec file changed in the diff but NOT named in a directive is OUT-OF-SCOPE (the build touched specs without plan sanction). For sanctioned files: a create directive must yield a file with `## Purpose` + named `### Requirement:` subsections each carrying `#### Scenario:` blocks, honoring the behavior-contract principle (no class/function names, no library choices, no implementation steps) — gaps or impl-detail leakage are OMISSION/DEVIATION; a modify directive must apply in-place edits correctly: an add appends a new named `### Requirement:` block without overwriting an existing one; an edit replaces the same-named block including its scenarios; a remove deletes the named block; `## Purpose` and untouched blocks preserved verbatim. A misapplied edit (wrong block replaced, unrelated block dropped, add clobbering an existing name) is a DEVIATION. The behavior-changed-but-no-spec-directive case (implementation alters a capability's externally-visible behavior and NO spec directive existed) spans plan + build: report it once in CROSS-CUTTING with ROUTING — plan-directed-and-build-missed route to @build; plan-never-directed route to @plan.
+Spec files named in FILES TO TOUCH directives are sanctioned build output and part of the conformance surface. A sanctioned spec file missing from the diff is an OMISSION. A spec file changed in the diff but NOT named in a directive is OUT-OF-SCOPE (the builder touched specs without plan sanction). For sanctioned files: a create directive must yield a file with `## Purpose` + named `### Requirement:` subsections each carrying `#### Scenario:` blocks, honoring the behavior-contract principle (no class/function names, no library choices, no implementation steps) — gaps or impl-detail leakage are OMISSION/DEVIATION; a modify directive must apply in-place edits correctly: an add appends a new named `### Requirement:` block without overwriting an existing one; an edit replaces the same-named block including its scenarios; a remove deletes the named block; `## Purpose` and untouched blocks preserved verbatim. A misapplied edit (wrong block replaced, unrelated block dropped, add clobbering an existing name) is a DEVIATION. The behavior-changed-but-no-spec-directive case (implementation alters a capability's externally-visible behavior and NO spec directive existed) spans plan + build: report it once in CROSS-CUTTING with ROUTING — plan-directed-and-build-missed route to @builder; plan-never-directed route to @architect.
 
 **GUARDRAIL (the whole game): this is a FORM + CORRECT-APPLICATION check only. Do NOT trace whether the implementation code satisfies the specs' behavior contracts — that is the expensive, architecture-adjacent kind that re-litigates @1-plan-review's work and burns tokens every task. You check only that spec directives were well-formed and correctly applied to the spec files.**
 
@@ -121,7 +121,7 @@ Before forming your verdict, check if `CODE_REVIEW_FIX.md` exists at the repo ro
 
 If it does NOT exist: this is a first-pass review. Proceed normally.
 
-If it DOES exist: this is a re-review round. The Build agent has previously received
+If it DOES exist: this is a re-review round. The Builder agent has previously received
 code-review findings and documented its fixes in CODE_REVIEW_FIX.md. Read the file
 in full. It contains per-round records of what was Addressed, Deferred, Unfixable,
 or Disputed, with stable finding-IDs (F-1, F-2…). You have additional responsibilities:
@@ -134,7 +134,7 @@ or Disputed, with stable finding-IDs (F-1, F-2…). You have additional responsi
   code? Match PERSISTING findings against the finding-IDs recorded in prior rounds.
 - Report all of this in a RE-REVIEW section within your output (see OUTPUT format).
 - If the CODE_REVIEW_FIX.md claims issues were fixed but the fix is absent from the
-  code, flag this as a CRITICAL finding — the build agent's documentation is
+  code, flag this as a CRITICAL finding — the builder agent's documentation is
   unreliable.
 - Termination awareness: if findings are minor and diminishing across rounds, note
    that the operator may choose to accept remaining issues rather than loop further.

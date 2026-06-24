@@ -10,12 +10,14 @@
       "enabled": true
     }
   },
-  "default_agent": "plan",
+  "default_agent": "architect",
   "agent": {
-    "plan": {
+    "architect": {
       "permission": {
         "edit": { "*": "deny", "PLAN.md": "allow" }
       }
-    }
+    },
+    "plan": { "disable": true },
+    "build": { "disable": true }
   }
 }
